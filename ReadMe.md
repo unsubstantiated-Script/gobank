@@ -12,3 +12,6 @@ Can also run jazz from the MakeFile check that for terminal commands and prefix 
 https://github.com/kyleconroy/sqlc/tree/v1.4.0
 
 Note: SQLC written in `account.sql` generate to account.sql.go via CLI operations with the `make` file
+
+##Testing 
+Run `go test ./...` for all subdirectory tests
