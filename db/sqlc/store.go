@@ -63,6 +63,9 @@ type TransferTxResult struct {
 	ToEntry Entry `json:"to_entry"`
 }
 
+//Second bracket means we are creating a new empty object of that type. For debugging
+//var txKey = struct{}{}
+
 // TransferTx performs a money transfer from one account to the other.
 // Creates a transfer record, adds account entries, and updates accounts' balance within a single DB transaction
 func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
@@ -74,7 +77,12 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 
 		var err error
 
+		//For debugging
+		//txName := ctx.Value(txKey)
+
 		//Creating a transfer
+		//For debugging
+		//fmt.Println(txName, "create transfer")
 		result.Transfer, err = q.CreateTransfer(ctx, CreateTransferParams{
 			FromAccountID: arg.FromAccountId,
 			ToAccountID:   arg.ToAccountId,
@@ -86,6 +94,8 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 
 		//Account Entries
 		// Removal From Account Entry
+		//For debugging
+		//fmt.Println(txName, "create Entry 1")
 		result.FromEntry, err = q.CreateEntry(ctx, CreateEntryParams{
 			AccountID: arg.FromAccountId,
 			Amount:    -arg.Amount,
@@ -95,6 +105,8 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 		}
 
 		// Addition TO Account Entry
+		//For debugging
+		//fmt.Println(txName, "create Entry 2")
 		result.ToEntry, err = q.CreateEntry(ctx, CreateEntryParams{
 			AccountID: arg.ToAccountId,
 			Amount:    arg.Amount,
@@ -104,7 +116,63 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 		}
 
 		//Updating Balances
-		
+		//get account -> update its balance
+		//For debugging
+		//fmt.Println(txName, "Get account 1 for update")
+		//account1, err := q.GetAccountForUpdate(ctx, arg.FromAccountId)
+		//if err != nil {
+		//	return err
+		//}
+
+		//For debugging
+		//fmt.Println(txName, "Update account 1 balance")
+		//result.FromAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
+		//	ID:      arg.FromAccountId,
+		//	Balance: account1.Balance - arg.Amount,
+		//})
+		//if err != nil {
+		//	return err
+		//}
+
+		//Combo-ing jazz now
+		//For debugging
+		//fmt.Println(txName, "Update account 1 balance")
+		result.FromAccount, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
+			ID:     arg.FromAccountId,
+			Amount: -arg.Amount,
+		})
+		if err != nil {
+			return err
+		}
+
+		//get account -> update its balance
+		//For debugging
+		//fmt.Println(txName, "Get account 2 for update")
+		//account2, err := q.GetAccountForUpdate(ctx, arg.ToAccountId)
+		//if err != nil {
+		//	return err
+		//}
+		//
+		////For debugging
+		////fmt.Println(txName, "Update account 2 balance")
+		//result.ToAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
+		//	ID:      arg.ToAccountId,
+		//	Balance: account2.Balance + arg.Amount,
+		//})
+		//if err != nil {
+		//	return err
+		//}
+
+		//For debugging
+		//fmt.Println(txName, "Update account 2 balance")
+		result.ToAccount, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
+			ID:     arg.ToAccountId,
+			Amount: arg.Amount,
+		})
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 
