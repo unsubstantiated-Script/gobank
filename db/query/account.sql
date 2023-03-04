@@ -13,6 +13,16 @@ FROM accounts
 WHERE id = $1
 LIMIT 1;
 
+-- Preventing concurrent queries from running at the same time NO KEY UPDATE keeps us out of concurrent locks
+-- name: GetAccountForUpdate :one
+SELECT *
+FROM accounts
+WHERE id = $1
+LIMIT 1
+FOR NO KEY UPDATE
+;
+
+
 --Read Many
 -- name: ListAccounts :many
 SELECT *
@@ -29,6 +39,14 @@ SET balance  = $2
 WHERE id = $1
 RETURNING *;
 
+--Add Balance
+-- exec or one and RETURNING * to return an object if needed
+-- name: AddAccountBalance :one
+UPDATE accounts
+-- We're only updating the balance here. Doesn't make sense to update owner or currency...
+SET balance  = balance + sqlc.arg(amount)
+WHERE id = sqlc.arg(id)
+RETURNING *;
 
 --Delete
 -- name: DeleteAccount :exec
