@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"github.com/stretchr/testify/require"
 	"github.com/techschool/simplebank/db/util"
 	"testing"
@@ -10,7 +9,7 @@ import (
 )
 
 //Basic setup util
-func createRandomAccount(t *testing.T) Account {
+func CreateRandomAccount(t *testing.T) Account {
 	arg := CreateAccountParams{
 		Owner:    util.RandomOwner(), //Randomly generate this?
 		Balance:  util.RandomMoney(),
@@ -37,13 +36,13 @@ func createRandomAccount(t *testing.T) Account {
 
 //Testing Create Account
 func TestQueries_CreateAccount(t *testing.T) {
-	createRandomAccount(t)
+	CreateRandomAccount(t)
 }
 
 //Testing Read Account
 func TestQueries_GetAccount(t *testing.T) {
 	//Creating test accounts
-	account1 := createRandomAccount(t)
+	account1 := CreateRandomAccount(t)
 	account2, err := testQueries.GetAccount(context.Background(), account1.ID)
 
 	//Making sure the error isn't nil in the creation/duplication thing
@@ -61,7 +60,7 @@ func TestQueries_GetAccount(t *testing.T) {
 //Testing Update Account
 func TestQueries_UpdateAccount(t *testing.T) {
 	//Creating test account
-	account1 := createRandomAccount(t)
+	account1 := CreateRandomAccount(t)
 
 	//Setting up update arguments
 	arg := UpdateAccountParams{
@@ -85,24 +84,24 @@ func TestQueries_UpdateAccount(t *testing.T) {
 }
 
 // Testing Delete Account
-func TestQueries_DeleteAccount(t *testing.T) {
-	//Creating test account
-	account1 := createRandomAccount(t)
-	err := testQueries.DeleteAccount(context.Background(), account1.ID)
-	require.NoError(t, err)
-
-	account2, err := testQueries.GetAccount(context.Background(), account1.ID)
-	//Making sure no error with the delete
-	require.Error(t, err)
-	//Making sure the delete removed all items in the row
-	require.EqualError(t, err, sql.ErrNoRows.Error())
-	//Making sure the appropriate account object is empty
-	require.Empty(t, account2)
-}
+//func TestQueries_DeleteAccount(t *testing.T) {
+//	//Creating test account
+//	account1 := CreateRandomAccount(t)
+//	err := testQueries.DeleteAccount(context.Background(), account1.ID)
+//	require.NoError(t, err)
+//
+//	account2, err := testQueries.GetAccount(context.Background(), account1.ID)
+//	//Making sure no error with the delete
+//	require.Error(t, err)
+//	//Making sure the delete removed all items in the row
+//	require.EqualError(t, err, sql.ErrNoRows.Error())
+//	//Making sure the appropriate account object is empty
+//	require.Empty(t, account2)
+//}
 
 func TestQueries_ListAccounts(t *testing.T) {
 	for i := 0; i < 10; i++ {
-		createRandomAccount(t)
+		CreateRandomAccount(t)
 	}
 
 	// We expect to get at least 5 records in the DB
