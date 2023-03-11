@@ -31,14 +31,14 @@ func createRandomTransfer(t *testing.T, account1, account2 Account) Transfer {
 }
 
 func TestQueries_CreateTransfer(t *testing.T) {
-	account1 := createRandomAccount(t)
-	account2 := createRandomAccount(t)
+	account1 := CreateRandomAccount(t)
+	account2 := CreateRandomAccount(t)
 	createRandomTransfer(t, account1, account2)
 }
 
 func TestQueries_GetTransfer(t *testing.T) {
-	account1 := createRandomAccount(t)
-	account2 := createRandomAccount(t)
+	account1 := CreateRandomAccount(t)
+	account2 := CreateRandomAccount(t)
 
 	transfer1 := createRandomTransfer(t, account1, account2)
 	transfer2, err := testQueries.GetTransfer(context.Background(), transfer1.ID)
@@ -55,8 +55,8 @@ func TestQueries_GetTransfer(t *testing.T) {
 }
 
 func TestQueries_ListTransfers(t *testing.T) {
-	account1 := createRandomAccount(t)
-	account2 := createRandomAccount(t)
+	account1 := CreateRandomAccount(t)
+	account2 := CreateRandomAccount(t)
 	for i := 0; i < 10; i++ {
 		createRandomTransfer(t, account1, account2)
 	}
